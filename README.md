@@ -6,197 +6,93 @@ Below is the source code of my Bank Evaluation System (C++) :
 #include <string>
 #include <cmath> // For Calculations
 
-using namespace std ;
+using namespace std;
 
-int main () {
-
+int main() {
     // Variables
-    string name ;
-    int age ;
-    int annualIncome ;
-    char existingLoan ;
-    int creditScore ;
-    int loanTerm ;
-    char proceedAns ;
-    int loanAmount ;
+    string name;
+    int age;
+    int annualIncome;
+    char existingLoan;
+    int creditScore;
+    int loanTerm;
+    char proceedAns;
+    int loanAmount;
 
-    //For Loan Approval
-    string ageApproval = "approved" ;
-    string creditApproval = "approved" ;
-    string termApproval = "approved" ;
-    string loanAmountApproval1 = "approved" ;
-    string loanAmountApproval2 = "approved" ;
-    string loanAmountApproval3 = "approved" ;
-    string status = "approved" ;
-    string existingLoanApproval = "approved" ;
+    // Welcome Message
+    cout << "Welcome to the Bank Loan Evaluation System!\n";
+    cout << "We are here to assist you in evaluating and processing your loan application.\n\n";
+    cout << "Would you like to evaluate a loan application? (Y/N): ";
+    cin >> proceedAns;
 
-// Welcome Message
-
-cout <<"Welcome to the Bank Loan Evaluation System!\n" ;
-cout <<"We are here to assist you in evaluating and processing your loan application.\n" ;
-cout <<"\n" ;
-cout <<"Would you like to Evaluate a loan application? (Y/N): " ;
-cin >> proceedAns ;
-
-    // Data Input
     while (proceedAns == 'y' || proceedAns == 'Y') {
-        cout <<"\n" ;
-        cout <<"\n" ;
-        cout <<"Please input your information below:\n " ;
-        cout <<"Enter applicant's name: " ;
-        cin.ignore() ;
-        getline(cin, name) ;
+        // Reset status to approved for each new application
+        string status = "approved";
 
-        cout <<"Enter applicant's age: " ;
-        cin >> age ;
+        // Data Input
+        cout << "\nPlease input your information below:\n";
+        cout << "Enter applicant's name: ";
+        cin.ignore();
+        getline(cin, name);
 
-        cout <<"Enter applicant's annual income: " ;
-        cin >> annualIncome ;
+        cout << "Enter applicant's age: ";
+        cin >> age;
 
-        cout <<"Enter applicant's credit score: " ;
-        cin >> creditScore ;
+        cout << "Enter applicant's annual income: ";
+        cin >> annualIncome;
 
-        cout <<"Enter loan amount requested: " ;
-        cin >> loanAmount ;
+        cout << "Enter applicant's credit score: ";
+        cin >> creditScore;
 
-        cout <<"Enter loan term (in years): " ;
-        cin >> loanTerm ;
+        cout << "Enter loan amount requested: ";
+        cin >> loanAmount;
 
-        cout <<"Does the applicant have an existing loan? (Y/N): " ;
-        cin >> existingLoan ;
+        cout << "Enter loan term (in years): ";
+        cin >> loanTerm;
 
-    // Limitations
-    if (age < 21 || age > 60) {
-        ageApproval = "rejected" ;
-        status = "rejected" ;
-    }
-    else {
-        status = "approved" ;
-        ageApproval = "approved" ;
-    }
+        cout << "Does the applicant have an existing loan? (Y/N): ";
+        cin >> existingLoan;
 
-    if (creditScore < 700) {
-        creditApproval = "rejected" ;
-        status = "rejected" ;
-    }
-    else {
-          status = "approved" ;
-          creditApproval = "approved" ;
-    }
-        
+        // Limitations
+        if (age < 21 || age > 60) status = "rejected";
+        if (creditScore < 700) status = "rejected";
+        if (loanTerm < 1 || loanTerm > 20) status = "rejected";
+        if (loanAmount < 50000 && annualIncome < 30000) status = "rejected";
+        if ((loanAmount > 50000 || loanAmount <= 100000) && annualIncome < 50000) status = "rejected";
+        if (loanAmount > 100000 && annualIncome < 80000) status = "rejected";
+        if (existingLoan == 'Y' || existingLoan == 'y') status = "rejected";
 
-    if (loanTerm < 1 || loanTerm > 20) {
-        termApproval = "rejected" ;
-        status = "rejected" ;
-    }
-    else {
-          status = "approved" ;
-          termApproval = "approved" ;
-    }
+        // Computation
+        if (status == "approved") {
+            double annualInterestRate = (annualIncome >= 100000) ? 0.05 : (annualIncome >= 50000) ? 0.07 : 0.10;
+            double monthlyInterestRate = annualInterestRate / 12;
+            int totalMonths = loanTerm * 12;
+            double monthlyAmortization = (loanAmount * monthlyInterestRate) / (1 - pow(1 + monthlyInterestRate, -totalMonths));
 
-    if (loanAmount < 50000 && annualIncome < 30000) {
-        loanAmountApproval1 = "rejected" ;
-        status = "rejected" ;
-    }
-    else {
-          status = "approved" ;
-          loanAmountApproval1 = "approved" ;
-    }
-    if ((loanAmount > 50000 || loanAmount <= 100000) && annualIncome < 50000) {
-        loanAmountApproval2 = "rejected" ;
-        status = "rejected" ;
-    }
-    else {
-          status = "approved" ;
-          loanAmountApproval2 = "approved" ;
-    }
-    if (loanAmount > 100000 && annualIncome < 80000) {
-        loanAmountApproval3 = "rejected" ;
-        status = "rejected" ;
-    }
-    else {
-          status = "approved" ;
-          loanAmountApproval3 = "approved" ;
+            // Result (Approved)
+            cout << "\nLoan Application Result for " << name << " :\n";
+            cout << "Status: Approved\n";
+            cout << "Applicable Interest Rate: " << (annualInterestRate * 100) << "%\n";
+            cout << "Loan Term: " << loanTerm << " years\n";
+            cout << "Monthly Amortization: $" << monthlyAmortization << "\n";
+        } else {
+            // Output Message for Rejected Application
+            cout << "\nLoan Application Result for " << name << ":\n";
+            cout << "Status: Rejected\n";
+            cout << "Reason(s):\n";
+            if (age < 21 || age > 60) cout << "- The applicant must be between 21 and 60 years old.\n";
+            if (creditScore < 700) cout << "- The applicant's credit score must be at least 700.\n";
+            if (loanTerm < 1 || loanTerm > 20) cout << "- The loan term must be between 1 and 20 years.\n";
+            if (loanAmount < 50000 && annualIncome < 30000) cout << "- Applicant must have an annual income of at least Php 30,000 for loans under Php 50,000.\n";
+            if ((loanAmount > 50000 || loanAmount <= 100000) && annualIncome < 50000) cout << "- Applicant must have an annual income of at least Php 50,000 for loans between Php 50,000 and Php 100,000.\n";
+            if (loanAmount > 100000 && annualIncome < 80000) cout << "- Applicant must have an annual income of at least Php 80,000 for loans over Php 100,000.\n";
+            if (existingLoan == 'Y' || existingLoan == 'y') cout << "- Applicant must not have an existing loan with the bank.\n";
+        }
+
+        cout << "\nDo you want to evaluate another loan application? (Y/N): ";
+        cin >> proceedAns;
     }
 
-    if (existingLoan == 'Y' || existingLoan == 'y') {
-        existingLoanApproval = "rejected" ;
-        status = "rejected" ;
-    }
-    else {
-          status = "approved" ;
-          existingLoanApproval = "approved" ;
-    }
-
-    // Computation
-    if (status == "approved") {
-        double annualInterestRate = 0.10 ;
-        double monthlyInterestRate = annualInterestRate / 12 ;
-        int totalMonths = loanTerm * 12 ;
-        string rate = "10%" ;
-        double monthlyAmortization = (loanAmount * monthlyInterestRate) / (1 - pow(1 + monthlyInterestRate, -totalMonths)) ;
-    
-    // Interest Rates
-    if (annualIncome >= 100000) {
-        annualInterestRate = 0.05 ;
-        rate = "5%" ;
-    }
-    else {
-        annualInterestRate = 0.10 ;
-        rate = "10%" ;
-    }
-    if (annualIncome >= 50000) {
-        annualInterestRate = 0.07 ;
-        rate = "7%" ;
-    }
-    else {
-        annualInterestRate = 0.10 ;
-        rate = "10%" ;
-    }
-
-    // Result (Approved)
-        cout <<"\n" ;
-        cout <<"\n" ;
-        cout <<"Loan Application Result for " << name << " :\n" ;
-        cout <<"\n" ;
-        cout <<"Status: Approved\n" ;
-        cout <<"Applicable Interest Rate: " << rate << "\n" ;
-        cout <<"Loan Term: " << loanTerm << " years\n" ;
-        cout <<"Monthly Amortization: " << "$" << monthlyAmortization <<"\n" ;
-    }
-    
-    //Output Message
-    if (status == "rejected") {
-        cout <<"\n" ;
-        cout <<"Loan Application Result for " << name <<":\n" ;
-        cout <<"Status: Rejected\n" ;
-        cout <<"Reason(s): \n" ;
-    }if (ageApproval == "rejected") {
-        cout <<"- The applicant must be between 21 and 60 years old.\n" ;
-    }if (creditApproval == "rejected") {
-        cout <<"- The applicant's credit score must be atleast 700.\n" ;
-    }if (termApproval == "rejected") {
-        cout <<"- The loan term must be betwee 1 and 20 years.\n" ;
-    }if (loanAmountApproval1 == "rejected") {
-        cout <<"- Applicant must have an annual income at least Php 30,000 for loans under Php 50,000.\n" ;
-    }if (loanAmountApproval2 == "rejected") {
-        cout <<"- Applicant must have an annual income at least Php 50,000 for loans between Php 50,000 and Php 100,000.\n" ;
-    }if (loanAmountApproval3 == "rejected") {
-        cout <<"- Applicant must have an annual income at least Php 80,000 for loans over Php 100,000.\n" ;
-    }if (existingLoanApproval == "rejected") {
-        cout <<"- Applicant must not have an existing loan with the bank.\n" ;
-    }
-
-    
-    
-        cout <<"\n" ;
-        cout <<"Do you want to evaluate another loan application? (Y/N): " ;
-        cin >> proceedAns ;
-
-    }
-
-    cout <<"\n" ;
-    cout <<"Exiting the loan evaluation system. Goodbye!" ;
-
-    return 0 ;
+    cout << "\nExiting the loan evaluation system. Goodbye!";
+    return 0;
 }
